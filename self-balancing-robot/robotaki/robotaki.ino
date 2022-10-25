@@ -45,18 +45,18 @@ void setup() {
   digitalWrite(10,LOW);
   
 #ifdef PRINT
-  ////Serial.begin(115200);
+  //Serial.begin(115200);
 #endif
   Wire.begin();
 
 #ifdef PRINT
   if(!myMPU6500.init()){
-    //////Serial.println("MPU6500 does not respond");
+    //Serial.println("MPU6500 does not respond");
   }
   else{
-    //////Serial.println("MPU6500 is connected");
+    //Serial.println("MPU6500 is connected");
   }
-  ////Serial.println("Position you MPU6500 flat and don't move it - calibrating...");
+  //Serial.println("Position you MPU6500 flat and don't move it - calibrating...");
 #endif
 
   for (int i=0; i<5 ;i++) {
@@ -71,7 +71,7 @@ void setup() {
   myMPU6500.autoOffsets();
 
 #ifdef PRINT
-  ////Serial.println("Done!");
+  //Serial.println("Done!");
 #endif
 
   //myMPU6500.setAccOffsets(-14240.0, 18220.0, -17280.0, 15590.0, -20930.0, 12080.0);
