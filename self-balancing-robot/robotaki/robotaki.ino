@@ -23,8 +23,8 @@ double error = 0, prev_error = 0;
 bool button_status = false;
 bool power_off = true;
 int output = 0;
-double theta;
-double theta_deg;
+double theta = 0;
+double theta_deg = 0;
 
 double sum = 0;
 
@@ -33,6 +33,7 @@ double K[] = {0,0};
 // the setup routine runs once when you press reset:
 void setup() {
   Serial.begin(115200);
+  //Serial.println("STARTING !!!");
   radio.begin();
   radio.openReadingPipe(0, address);   //Setting the address at which we will receive the data
   radio.setPALevel(RF24_PA_MIN);       //You can set this as minimum or maximum depending on the distance between the transmitter and receiver.
@@ -80,7 +81,7 @@ void setup() {
   //myMPU6500.disableGyrDLPF(MPU6500_BW_WO_DLPF_8800); // bandwdith without DLPF
 
   myMPU6500.setGyrDLPF(MPU6500_DLPF_6);
-  myMPU6500.setSampleRateDivider(5);
+  myMPU6500.setSampleRateDivider(0);
   myMPU6500.setGyrRange(MPU6500_GYRO_RANGE_250);
   myMPU6500.setAccRange(MPU6500_ACC_RANGE_2G);
   myMPU6500.enableAccDLPF(true);
@@ -102,7 +103,7 @@ void setup() {
 
 // the loop routine runs over and over again forever:
 void loop() {
-    
+/*
     do {
       button_status = digitalRead(6);
       if (!button_status) {
@@ -129,23 +130,23 @@ void loop() {
       }
     } while(power_off);
     myservo.write(175);
+*/
 
-
-    
-    if (radio.available()) {
-      radio.read(&K, sizeof(K));
-      //Serial.print("Kp: ");
-      //Serial.print(K[0]);
-      //Serial.print(", Kd: ");
-      //Serial.println(K[1]);
-    }
-    //else {
-      //Serial.println("Could not connect!");
-    //}
-    
-    Serial.println("Attempting to read...");
-    xyzFloat gValue = myMPU6500.getGValues();
-    Serial.println("Read succesfully!");
+  
+  if (radio.available()) {
+    radio.read(&K, sizeof(K));
+    //Serial.print("Kp: ");
+    //Serial.print(K[0]);
+    //Serial.print(", Kd: ");
+    //Serial.println(K[1]);
+  }
+  //else {
+    //Serial.println("Could not connect!");
+  //}
+  
+  //Serial.println("Attempting to read...");
+  xyzFloat gValue = myMPU6500.getGValues();
+  //Serial.println("Read succesfully!");
 
 
   //Serial.println("Acceleration in g (x,y,z):");
@@ -157,11 +158,11 @@ void loop() {
     
     
     if(gValue.z != 0){
+      gValue.z = 2 - gValue.z;
       theta = atan(gValue.x/gValue.z);
-      theta_deg = atan(gValue.x/gValue.z)*RAD_TO_DEG;
+      theta_deg = 0.4*theta_deg + 0.6*atan(gValue.x/gValue.z)*RAD_TO_DEG;
       //theta = sin(atan(gValue.x/gValue.z));
-    }
-    
+    }  
     
     
 #ifdef PRINT
@@ -171,23 +172,30 @@ void loop() {
 
     prev_error = error;
     error = theta_deg;
+    Serial.print("MIN:-90, MAX:90, angle:");
+    Serial.println(theta_deg);
 
     sum = 0.9*error + 0.3*sum;
 
     sum = min(max(-40,sum),40);
 
-    output = K[0]*error + K[1]*(error-prev_error);
+    xyzFloat gyr = myMPU6500.getGyrValues();
+
+    output = K[0]*error + K[1]*gyr.y;//(error-prev_error);
+    //Serial.print("MIN:-250, MAX:250, GYR_y:");
+    //Serial.println(gyr.y);
 
 #ifdef PRINT
     //Serial.print("output: ");
     //Serial.println(output);
 #endif
 
-    output *= 4 /(abs(output)/10+1)+1;
+    //output *= 4 /(abs(output)/10+1)+1;
     //output *= 4/(abs(output)/10+1)+1;
 
 
     //Serial.println(output);
+
 
     if (output >= 0) {
       digitalWrite(2, LOW);
@@ -195,7 +203,7 @@ void loop() {
 
       output = min(output,255);
 
-      analogWrite(3,output);
+      analogWrite(3,output*0.95);
       analogWrite(5,output);
     }
     else {
@@ -204,23 +212,9 @@ void loop() {
 
       output = min(-output,255);
 
-      analogWrite(3,255-output);
+      analogWrite(3,255-output*0.95);
       analogWrite(5,255-output);
     }
     //delay(40);
     
 }
-
-/*
-void servo_soft(int x) {
-  int a,i=servo_remember;
-  if (x > servo_remember) a=1;
-  else a=-1;
-  while(i!=x) {
-    i+=a;
-    myservo.write(i);
-    delay(3);
-  }
-  servo_remember = x;
-  }
-*/
