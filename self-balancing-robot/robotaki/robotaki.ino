@@ -21,6 +21,8 @@ double theta_deg = 0;
 
 double sum = 0;
 
+unsigned long last_connection = 0;
+
 struct Operating_Data {
   double Kp = 14;
   double Kd = 3;
@@ -34,8 +36,7 @@ struct Operating_Data {
 
 // the setup routine runs once when you press reset:
 void setup() {
-  Serial.begin(115200);
-  //Serial.println("STARTING !!!");
+  //Serial.begin(115200);
   radio_setup();
 
   //myservo.attach(9);
@@ -57,42 +58,15 @@ void setup() {
 
 // the loop routine runs over and over again forever:
 void loop() {
-/*
-    do {
-      button_status = digitalRead(6);
-      if (!button_status) {
-          digitalWrite(2, LOW);
-          digitalWrite(3, LOW);
-          digitalWrite(4, LOW);
-          digitalWrite(5, LOW);
-          //digitalWrite(10,LOW);
 
-          theta = 0;
-          error = 0;
-          prev_error = 0;
-          output = 0;
-          sum = 0;
-          
-          myservo.write(90);
-          delay(300);          
-        while(!button_status)
-          button_status = digitalRead(6);
-        if (power_off)
-          power_off = false;
-        else
-          power_off = true;
-      }
-    } while(power_off);
-    myservo.write(175);
-*/
-
-  
   if (radio.available()) {
     radio.read(&Received_Data, sizeof(Received_Data));
     get_Data = &Received_Data;
+    last_connection = millis();
   }
-  else
+  else if (millis()-last_connection > 250) {
     get_Data = &Default_Data;
+  }
 
   xyzFloat gValue = myMPU6500.getGValues();
   xyzFloat gyr = myMPU6500.getGyrValues();
@@ -118,6 +92,17 @@ void loop() {
   output = get_Data->Kp*error - get_Data->Kd*gyr.y + get_Data->Ki*sum;
 
   drive_motors(output);
+/*
+  Serial.println(get_Data->Kp);
+  Serial.println(get_Data->Kd);
+  Serial.println(get_Data->Ki);
+
+  
+
+  Serial.print("Time: ");
+  Serial.println(millis()-prev_millis);
+  prev_millis = millis();
+*/
 }
 
 
