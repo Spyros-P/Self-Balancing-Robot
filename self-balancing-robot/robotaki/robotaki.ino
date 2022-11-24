@@ -20,19 +20,22 @@ int output = 0;
 double theta_deg = 0;
 
 double sum = 0;
+double setpoint = 2.0;
 
 unsigned long last_connection = 0;
 
 struct Operating_Data {
-  double Kp = 14;
+  double Kp = 12;
   double Kd = 3;
-  double Ki = 8;
-  double setpoint = 2.2;
+  double Ki = 7;
+  double setpoint = 3;
   double sum_limit = 50;
-  double exp_dec_sum = 0.97;
+  double sum_weight = 0.5;
+  double exp_dec_sum = 0.95;
   double exp_inc_sum = 1.01;
-} Default_Data, Received_Data, *get_Data;
+} Default_Data, Received_Data;
 
+Operating_Data *get_Data = &Default_Data;
 
 // the setup routine runs once when you press reset:
 void setup() {
@@ -78,14 +81,22 @@ void loop() {
   }
 
   error = theta_deg - get_Data->setpoint;
+
+  //setpoint = a*theta_deg + (1-a)*setpoint;
+
+  //setpoint += get_Data->setval*(theta_deg-setpoint);// + (1-get_Data->setpoint)*setpoint;
+
+  //Serial.print(setpoint);Serial.print("  ---  ");Serial.print(get_Data->setval);Serial.print("  ---  ");Serial.println(theta_deg);
+
+  //error = theta_deg - setpoint;
   
   //Serial.print("MIN:-90, MAX:90, angle:");
   //Serial.println(theta_deg);
 
   if (sum*theta_deg<0)
-    sum = error + get_Data->exp_dec_sum*sum;
+    sum = get_Data->sum_weight*error + get_Data->exp_dec_sum*sum;
   else
-    sum = error + get_Data->exp_inc_sum*sum;
+    sum = get_Data->sum_weight*error + get_Data->exp_inc_sum*sum;
   
   sum = min(max(-get_Data->sum_limit,sum),get_Data->sum_limit);
 
