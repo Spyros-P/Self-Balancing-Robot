@@ -29,24 +29,37 @@ PID is a mechanism used in balancing (or generally automatic gain control) appli
 <sub> Note: We are not in any way, shape or form neither fully nor partially sponsored by any of manufacturers mentioned within this chapter. These are purely the parts used and are indicated so as to enable re-construction of the build by any willing external parties as this is an open source project. <sub>
 
 (2x) Arduino Nano - the Development Board used in the robot and the controller
+  
   ![image](https://user-images.githubusercontent.com/85502727/211302574-4858270a-e53b-4300-aad7-e04388e31a7d.png)
 
+  --
 MPU 9250/6500 - our gyroscope/accelerometer
+  
   ![image](https://user-images.githubusercontent.com/85502727/211302731-3a1371b1-bee2-4a21-be91-8d25317fbee2.png)
 
+  --
 (2x) NRF24L01 2.4 GHz - the antennas used for data exchange between the controller and the robot
+  
   ![image](https://user-images.githubusercontent.com/85502727/211302890-82fa659f-fd86-46b3-a258-83e731cead0f.png)
 
+  --
 (2x) DC Gear Motors - the motors used to spin the wheels of the robot
+ 
   ![image](https://user-images.githubusercontent.com/85502727/211303588-1f49b88f-a3f0-4e04-ad51-c892a1abb89d.png)
 
+  --
 Waveshare motor control board - the board that powered the gear motors with the appropriate voltage
+  
   ![image](https://user-images.githubusercontent.com/85502727/211303561-10ae012e-05a9-4fb4-a650-570b0b85141c.png)
 
+  --
 18650 Battery Shield - The shield used as a means of connecting the battery safely to the rest of the circuit and also used as a power adaptor of the battery's 5V to 3.3V power output
+  
   ![image](https://user-images.githubusercontent.com/85502727/211303840-d92bc0a7-0738-48c7-9658-00c9524394d4.png)
 
+  --
 18650 Battery - The battery itself used to power the circuit
+  
   ![image](https://user-images.githubusercontent.com/85502727/211307156-86df0010-f314-48e3-b3e4-b0b88fa11951.png)
 
 
