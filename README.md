@@ -17,15 +17,37 @@ The problem we tried to tackle is the equivalent of trying to balance a broomsti
 
 ![image](https://user-images.githubusercontent.com/85502727/211288493-f618b9b6-6302-440d-a427-da46e0e66604.png)
 
+PID is a mechanism used in balancing (or generally automatic gain control) applications that tweaks the forces applied to the mechanism, in this case the motors, depending on all 3 parameters of 'P', 'I', 'D'. 
 #### Proportional
-PID is a mechanism used in balancing (or generally automatic gain control) applications that tweaks the forces applied to the mechanism, in this case the motors, depending on all 3 parameters of 'P', 'I', 'D'. 'P' stands for Proportional gain, which is the force (or voltage) which the mechanism will apply to correct the 'error'. In this case, 'error' is the angle at which the robot sits at a given time, regardless of whether it's moving or not. 
+'P' stands for Proportional gain, which is the force (or voltage) which the mechanism will apply to correct the 'error'. In this case, 'error' is the angle at which the robot sits at a given time, regardless of whether it's moving or not. 
 #### Integral
 'I' stands for Integral gain, which means correction over time. Basically, this parameter is used to detect any movements the robot is inclined to do, for example if it tilts more towards one angle than the other (even though in theory it has been calibrated), then the Integral gain counters that 'behavioral pattern' and many others. In other words, it takes into account previous errors and possibly accumulates a small repeatedly occurring error (since it multiplies over time). 
 #### Derivative
 'D' stands for Derivative gain and it seeks to counter the robot’s predicted ‘future’ movement. Basically, it takes into account not only the angle at which it stands at a given point in time, but also its speed at that same time, as it is harder, for instance, to balance a rightwards tilted robot that is also falling towards that direction than it is to balance a rightwards tilted robot that is momentarily stationary (due to previously applied forces for example)  In theory and in some well implemented practices, the 'P' factor is enough on it’s own to balance the robot, and the other factors are mostly needed to either reach balance within a tighter time frame or to do so in a smooth manner, but more on that on another chapter.
 
 ### Final Build & Components
+[^note]: Note: We are not in any way, shape or form neither fully nor partially sponsored by any of manufacturers mentioned within this chapter. These are purely the parts used and are indicated so as to enable re-construction of the build by any willing external parties as this is an open source project.
 
+(2x) Arduino Nano - the Development Board used in the robot and the controller
+![image](https://user-images.githubusercontent.com/85502727/211302574-4858270a-e53b-4300-aad7-e04388e31a7d.png)
+
+MPU 9250/6500 - our gyroscope/accelerometer
+
+![image](https://user-images.githubusercontent.com/85502727/211302731-3a1371b1-bee2-4a21-be91-8d25317fbee2.png)
+
+(2x) NRF24L01 2.4 GHz - the antennas used for data exchange between the controller and the robot
+
+![image](https://user-images.githubusercontent.com/85502727/211302890-82fa659f-fd86-46b3-a258-83e731cead0f.png)
+
+(2x) DC Gear Motors - the motors used to spin the wheels of the robot
+![image](https://user-images.githubusercontent.com/85502727/211303588-1f49b88f-a3f0-4e04-ad51-c892a1abb89d.png)
+
+
+Waveshare motor control board - the board that powered the gear motors with the appropriate voltage
+![image](https://user-images.githubusercontent.com/85502727/211303561-10ae012e-05a9-4fb4-a650-570b0b85141c.png)
+
+18650 Battery Shield - 
+![image](https://user-images.githubusercontent.com/85502727/211303840-d92bc0a7-0738-48c7-9658-00c9524394d4.png)
 
 
 
