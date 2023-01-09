@@ -5,7 +5,7 @@ This is a project for a Self Balancing Robot implemented with a PID controller, 
 
 ### Result & Verdict
 
-The Robot could reliably balance itsself after tweaking the PID parameters for well over a minute of runtime. It could also keep its balance when very small forces were applied. The reason for that, we believe, were the motors, whose maximum torque was far too low to safely restore balance after every external force application. We found, however, that they were more than capable enough to 'help' the robot restore its' own balance.
+The Robot could reliably balance itself after tweaking the PID parameters for well over a minute of runtime. It could also keep its balance when very small forces were applied. The reason for that, we believe, were the motors, whose maximum torque was far too low to safely restore balance after every external force application. We found, however, that they were more than capable enough to 'help' the robot restore its' own balance.
 
 ### The Robot & The Problem
 
