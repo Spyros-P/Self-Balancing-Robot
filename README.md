@@ -26,7 +26,7 @@ PID is a mechanism used in balancing (or generally automatic gain control) appli
 'D' stands for Derivative gain and it seeks to counter the robot’s predicted ‘future’ movement. Basically, it takes into account not only the angle at which it stands at a given point in time, but also its speed at that same time, as it is harder, for instance, to balance a rightwards tilted robot that is also falling towards that direction than it is to balance a rightwards tilted robot that is momentarily stationary (due to previously applied forces for example)  In theory and in some well implemented practices, the 'P' factor is enough on it’s own to balance the robot, and the other factors are mostly needed to either reach balance within a tighter time frame or to do so in a smooth manner, but more on that on another chapter.
 
 ### Final Build & Components
-[^note]: Note: We are not in any way, shape or form neither fully nor partially sponsored by any of manufacturers mentioned within this chapter. These are purely the parts used and are indicated so as to enable re-construction of the build by any willing external parties as this is an open source project.
+<sub> Note: We are not in any way, shape or form neither fully nor partially sponsored by any of manufacturers mentioned within this chapter. These are purely the parts used and are indicated so as to enable re-construction of the build by any willing external parties as this is an open source project. <sub>
 
 (2x) Arduino Nano - the Development Board used in the robot and the controller
 ![image](https://user-images.githubusercontent.com/85502727/211302574-4858270a-e53b-4300-aad7-e04388e31a7d.png)
