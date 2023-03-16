@@ -1,4 +1,4 @@
-# Arduino-Projects
+# Self-Balancing-Robot
 README-DOCUMENTATION OF FINAL PRODUCT
 
 This is a project for a Self Balancing Robot implemented with a PID controller, along with an external controller-transmitter the parameters of which (P, I, D) were modifiable with potentiometers, sent to the robot via a small antenna in real-time, and shown to the user via a screen within the controller interface.
