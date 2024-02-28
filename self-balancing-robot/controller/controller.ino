@@ -27,7 +27,7 @@ struct Operating_Data {
 } Transmitting_Data;
 
 void setup() {
-	lcd.begin();
+	lcd.begin(16, 2);
 	lcd.backlight();
   //Serial.begin(115200);
   radio.begin();                  //Starting the Wireless communication
