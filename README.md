@@ -63,4 +63,8 @@ Waveshare motor control board - the board that powered the gear motors with the 
   ![image](https://user-images.githubusercontent.com/85502727/211307156-86df0010-f314-48e3-b3e4-b0b88fa11951.png)
 
 
+## Arduino Libraries Used
 
+- `RF24` by `TMRh20`
+- `LiquidCrystal I2C` by `Frank de Brabander`
+- `MPU9250_WE` by `Wolfgang Ewald`
