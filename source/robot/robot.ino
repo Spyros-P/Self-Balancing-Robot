@@ -2,14 +2,15 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 RF24 radio(7, 8); // CE, CSN
-const byte address[6] = "Ntu@X";
+const byte read_address[6] = "Ntu@1";
+const byte write_address[6] = "Ntu@2";
+
+// Set if the robot should send info to the controller
+#define SEND_INFO 0
 
 #include <MPU6500_WE.h>
 #include <Wire.h>
 #define MPU6500_ADDR 0x68
-
-//#include <Servo.h>
-//Servo myservo;  // create servo object to control a servo
 
 #define RAD_TO_DEG 57.295779513082320876798154814105
 
@@ -24,6 +25,10 @@ double setpoint = 2.0;
 
 unsigned long last_connection = 0;
 
+unsigned long start_time;
+
+unsigned long sum_time = 0;
+
 struct Operating_Data {
   double Kp = 12;
   double Kd = 3;
@@ -37,14 +42,15 @@ struct Operating_Data {
 
 Operating_Data *get_Data = &Default_Data;
 
+// Create a stucture to hold some measurements (in order to send them over the radio)
+struct Robot_Info {
+  double theta_deg;
+  unsigned long last_connection;
+} robot_data;
+
 // the setup routine runs once when you press reset:
 void setup() {
-  //Serial.begin(115200);
   radio_setup();
-
-  //myservo.attach(9);
-  //myservo.write(90);
-  
   MPU_setup();
   
   pinMode(2, OUTPUT);
@@ -52,7 +58,6 @@ void setup() {
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
   
-
   digitalWrite(2, LOW);
   digitalWrite(3, LOW);
   digitalWrite(4, LOW);
@@ -61,69 +66,72 @@ void setup() {
 
 // the loop routine runs over and over again forever:
 void loop() {
+  radio.openReadingPipe(0, read_address);   //Setting the address at which we will receive the data
+  radio.startListening();              //This sets the module as receiver
 
-  if (radio.available()) {
-    radio.read(&Received_Data, sizeof(Received_Data));
-    get_Data = &Received_Data;
-    last_connection = millis();
+  bool received_data = false;
+  start_time = millis();
+  
+  while(!received_data && millis() - start_time < 10) {
+    if (radio.available()) {
+      radio.read(&Received_Data, sizeof(Received_Data));
+      get_Data = &Received_Data;
+      last_connection = millis();
+      received_data = true;
+    }
   }
-  else if (millis()-last_connection > 250) {
+  /*
+  if (!received_data && millis() - last_connection < 250) {
     get_Data = &Default_Data;
   }
+  */
 
   xyzFloat gValue = myMPU6500.getGValues();
   xyzFloat gyr = myMPU6500.getGyrValues();
 
              
-  if(gValue.z != 0){
-    //gValue.z = 2 - gValue.z;
-    theta_deg = atan2(gValue.x, gValue.z)*RAD_TO_DEG;
-  }
+  if(gValue.z != 0) theta_deg = atan2(gValue.x, gValue.z)*RAD_TO_DEG;
 
   error = theta_deg - get_Data->setpoint;
 
-  //setpoint = a*theta_deg + (1-a)*setpoint;
+#if SEND_INFO == 1
 
-  //setpoint += get_Data->setval*(theta_deg-setpoint);// + (1-get_Data->setpoint)*setpoint;
+  radio.openWritingPipe(write_address);
+  radio.stopListening();              //This sets the module as transmitter
 
-  //Serial.print(setpoint);Serial.print("  ---  ");Serial.print(get_Data->setval);Serial.print("  ---  ");Serial.println(theta_deg);
+  robot_data.theta_deg = theta_deg;
+  robot_data.last_connection = millis() - last_connection;
 
-  //error = theta_deg - setpoint;
-  
-  //Serial.print("MIN:-90, MAX:90, angle:");
-  //Serial.println(theta_deg);
+  start_time = millis();
+  while (!radio.write(&robot_data, sizeof(robot_data)) &&
+         millis() - start_time < 10) delay(2);
+#endif
 
-  if (sum*theta_deg<0)
-    sum = get_Data->sum_weight*error + get_Data->exp_dec_sum*sum;
-  else
-    sum = get_Data->sum_weight*error + get_Data->exp_inc_sum*sum;
-  
-  sum = min(max(-get_Data->sum_limit,sum),get_Data->sum_limit);
-
-  output = get_Data->Kp*error - get_Data->Kd*gyr.y + get_Data->Ki*sum;
+  if (theta_deg > 50 || theta_deg < -50) {
+    output = 0;
+  }
+  else {
+    unsigned long temp_time = millis();
+    if ((sum>0 && theta_deg<0) || (sum<0 && theta_deg>0))
+      sum = get_Data->sum_weight*error*(temp_time-sum_time) + get_Data->exp_dec_sum*sum;
+    else
+      sum = get_Data->sum_weight*error*(temp_time-sum_time) + get_Data->exp_inc_sum*sum;
+    
+    sum_time = temp_time;
+    
+    sum = min(max(-get_Data->sum_limit,sum),get_Data->sum_limit);
+    output = get_Data->Kp*error - get_Data->Kd*gyr.y + get_Data->Ki*sum;
+  }
 
   drive_motors(output);
-/*
-  Serial.println(get_Data->Kp);
-  Serial.println(get_Data->Kd);
-  Serial.println(get_Data->Ki);
-
-  
-
-  Serial.print("Time: ");
-  Serial.println(millis()-prev_millis);
-  prev_millis = millis();
-*/
 }
 
 
 
 inline void radio_setup() {
   radio.begin();
-  radio.openReadingPipe(0, address);   //Setting the address at which we will receive the data
   radio.setPALevel(RF24_PA_MIN);       //You can set this as minimum or maximum depending on the distance between the transmitter and receiver.
   radio.setDataRate(RF24_250KBPS);
-  radio.startListening();              //This sets the module as receiver
 }
 
 inline void MPU_setup() {
@@ -153,7 +161,7 @@ inline void drive_motors(int output) {
     output = min(output,255);
 
     analogWrite(3,output);
-    analogWrite(5,output*0.95);
+    analogWrite(5,output);
   }
   else {
     digitalWrite(2, HIGH);
@@ -162,6 +170,6 @@ inline void drive_motors(int output) {
     output = min(-output,255);
 
     analogWrite(3,255-output);
-    analogWrite(5,255-output*0.95);
+    analogWrite(5,255-output);
   }
 }
