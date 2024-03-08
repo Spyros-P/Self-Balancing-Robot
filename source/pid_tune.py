@@ -17,10 +17,14 @@ import matplotlib.pyplot as plt
 class Controller:
     def __init__(self, port):
         self.port = port
-        self.ser = serial.Serial(port, 115200, timeout=1)
+        self.ser = serial.Serial(port, 57600, timeout=1)
         time.sleep(2)
 
     def send_data(self, data):
+        """
+        TODO: fix communication (the arduino does not receive successfully all the data)
+        Sometimes the arduino misses some characters
+        """
         data = json.dumps(data)
         self.ser.write(bytes(data+'\n', 'utf-8'))
         #self.ser.flush()  # Flush the buffer
@@ -28,7 +32,10 @@ class Controller:
     def read_data(self):
         if self.ser.in_waiting > 0:
             data = self.ser.readline()
-            # return the data as a dictionary
+            # TODO: flush the buffer
+            #time.sleep(.01)
+            #self.ser.reset_input_buffer()
+
             return json.loads(data)
         else:
             return None
@@ -77,7 +84,7 @@ key_mappings = {
 if __name__ == "__main__":
 
     values_dict = {
-        0 : {"name": "Kp", "value": 7, "MIN": 0, "MAX": 25, "increase_rate": 0.25, "decrease_rate": 0.25},
+        0 : {"name": "Kp", "value": 7, "MIN": 0, "MAX": 50, "increase_rate": 0.5, "decrease_rate": 0.5},
         1 : {"name": "Kd", "value": 3, "MIN": 0, "MAX": 10, "increase_rate": 0.1, "decrease_rate": 0.1},
         2 : {"name": "Ki", "value": 3, "MIN": 0, "MAX": 10, "increase_rate": 0.1, "decrease_rate": 0.1},
         3 : {"name": "setpoint", "value": 1, "MIN": -9, "MAX": 11, "increase_rate": 0.01, "decrease_rate": 0.01},
@@ -86,6 +93,17 @@ if __name__ == "__main__":
         6 : {"name": "exp_dec_sum", "value": 0.6, "MIN": 0, "MAX": 1, "increase_rate": 0.1, "decrease_rate": 0.1},
         7 : {"name": "exp_inc_sum", "value": 1.03, "MIN": 0, "MAX": 1, "increase_rate": 0.1, "decrease_rate": 0.1}
     }
+    
+    robot_info = {
+        "theta_deg": [],
+        "gyr": [],
+        "acc_x": [],
+        "acc_z": [],
+        "sum": [],
+        "output": []
+    }
+
+
     changing_value = 0
 
     num_values = 3 #len(values_dict)
@@ -205,6 +223,8 @@ if __name__ == "__main__":
 
             # use joystick
             values_dict[3]["value"] = (joystick.get_axis(1) + 1) / 2 * (values_dict[3]["MAX"] - values_dict[3]["MIN"]) + values_dict[3]["MIN"]
+            # round at 3 decimal places
+            values_dict[3]["value"] = round(values_dict[3]["value"], 3)
 
             # Convert the HSV colors to RGB
             rgb_blue = colorsys.hsv_to_rgb(0.67, 0.5+0.5*int(changing_value==0), 1)  # Hue for blue is 0.67
@@ -252,7 +272,7 @@ if __name__ == "__main__":
 
             # TODO: fix it
             try:
-                controller_data = controller.read_data()
+                controller_data = controller.read_data()                
                 # update output text boxes
                 angle = round(controller_data['theta_deg'], 2) # keep 2 decimal places
                 window['theta_deg'].update(angle)
